@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çiçek Buketi ve Kalp</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+             border: 1px solid white; /* Canvas kenarlığını görünür kıl */
+        }
+
+        .flower-bouquet {
+            position: relative;
+            bottom: -100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .flower {
+            width: 40px;
+            height: 40px;
+            background-color: #F4B400;
+            border-radius: 50%;
+            margin: 10px;
+            position: relative;
+        }
+
+        .flower1 {
+            left: -60px;
+            top: 50px
+        }
+        .flower2 {
+            top: -15px;
+        }
+        .flower3 {
+            left: 60px;
+            top: 50px
+        }
+        .flower4 {
+            left: 0;
+            top: 60px
+        }
+
+        .stem {
+            width: 4px;
+            background-color: green;
+            position: absolute;
+        }
+        .stem1 {
+            height: 60px;
+            top: 70px;
+            left: -58px;
+            transform: rotate(-15deg);
+        }
+        .stem2 {
+            height: 90px;
+            top: 40px;
+        }
+        .stem3 {
+            height: 60px;
+            top: 70px;
+            right: -58px;
+            transform: rotate(15deg);
+        }
+        .wrapper{
+            width: 100px;
+            height: 50px;
+            border-radius: 0 0 40px 40px;
+            background-color: brown;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas id="kalpCanvas"></canvas>
+        <div class="flower-bouquet">
+            <div class="flower flower1"></div>
+            <div class="flower flower2"></div>
+            <div class="flower flower3"></div>
+            <div class="flower flower4"></div>
+            <div class="stem stem1"></div>
+            <div class="stem stem2"></div>
+            <div class="stem stem3"></div>
+             <div class="wrapper"></div>
+         </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('kalpCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = 600;
+        canvas.height = 600;
+
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        const scale = 20;
+        let i = 0;
+        const totalIterations = 2500;
+
+        function xt(t) {
+            return 16 * Math.pow(Math.sin(t), 3);
+        }
+
+        function yt(t) {
+            return 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+        }
+
+        function drawFrame() {
+            if (i >= totalIterations) {
+                return;
+            }
+            const x = xt(i) * scale;
+            const y = yt(i) * scale;
+
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX + x, centerY - y);
+            ctx.strokeStyle = 'red';
+            ctx.stroke();
+
+            i++;
+            requestAnimationFrame(drawFrame);
+        }
+
+        drawFrame();
+    </script>
+</body>
+</html>
