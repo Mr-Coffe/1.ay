@@ -1,124 +1,133 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Çiçek Buketi ve Kalp</title>
+    <title>Gelişmiş Animasyon</title>
     <style>
         body {
             margin: 0;
+            overflow: hidden; /* scroll engelle */
+            background-color: black;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: black;
+            position: relative; /* pozisyonlar için referans */
         }
-
-        .container {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        canvas {
-            position: absolute;
-            top: 10%;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1;
-             border: 1px solid white; /* Canvas kenarlığını görünür kıl */
-        }
-
-        .flower-bouquet {
-            position: relative;
-            bottom: -100px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .flower {
-            width: 40px;
-            height: 40px;
-            background-color: #F4B400;
-            border-radius: 50%;
-            margin: 10px;
-            position: relative;
-        }
-
-        .flower1 {
-            left: -60px;
-            top: 50px
-        }
-        .flower2 {
-            top: -15px;
-        }
-        .flower3 {
-            left: 60px;
-            top: 50px
-        }
-        .flower4 {
-            left: 0;
-            top: 60px
-        }
-
-        .stem {
-            width: 4px;
-            background-color: green;
-            position: absolute;
-        }
-        .stem1 {
-            height: 60px;
-            top: 70px;
-            left: -58px;
-            transform: rotate(-15deg);
-        }
-        .stem2 {
-            height: 90px;
-            top: 40px;
-        }
-        .stem3 {
-            height: 60px;
-            top: 70px;
-            right: -58px;
-            transform: rotate(15deg);
-        }
-        .wrapper{
+        #heart-container{
+            position:absolute;
+            top: 20px;
+            right: 20px;
             width: 100px;
-            height: 50px;
-            border-radius: 0 0 40px 40px;
-            background-color: brown;
-            margin-top: 10px;
+            height: 100px;
         }
+        canvas {
+            position: absolute; /* çiçek için pozisyon*/
+           
+        }
+
     </style>
 </head>
 <body>
-    <div class="container">
-        <canvas id="kalpCanvas"></canvas>
-        <div class="flower-bouquet">
-            <div class="flower flower1"></div>
-            <div class="flower flower2"></div>
-            <div class="flower flower3"></div>
-            <div class="flower flower4"></div>
-            <div class="stem stem1"></div>
-            <div class="stem stem2"></div>
-            <div class="stem stem3"></div>
-             <div class="wrapper"></div>
-         </div>
+        
+    <canvas id="flowerCanvas"></canvas>
+    <div id="heart-container">
+          <canvas id="kalpCanvas"></canvas>
     </div>
 
+
     <script>
-        const canvas = document.getElementById('kalpCanvas');
-        const ctx = canvas.getContext('2d');
+    const canvas = document.getElementById('flowerCanvas');
+    const ctx = canvas.getContext('2d');
 
-        canvas.width = 600;
-        canvas.height = 600;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
+    const flowerData = [
+    { x: canvas.width / 2 - 200, y: canvas.height / 2, color1: "#c70039", color2:"#900c3f", delay:0,},
+    { x: canvas.width / 2, y: canvas.height / 2, color1: "#c70039", color2:"#900c3f",delay:100,},
+    { x: canvas.width / 2 + 200, y: canvas.height / 2, color1: "#c70039", color2:"#900c3f",delay:200}
+   ];
 
-        const scale = 20;
+    const flowerSize = 40;
+    let animationFrame=null;
+    
+    function drawFlower(x, y,scale,color1,color2) {
+       ctx.beginPath();
+       ctx.moveTo(x,y);
+      
+        const flowerColor = ctx.createRadialGradient(x, y, flowerSize/4, x, y, flowerSize);
+        flowerColor.addColorStop(0, color1);
+        flowerColor.addColorStop(1, color2);
+        ctx.fillStyle = flowerColor;
+      
+      for (let i = 0; i < 5; i++) {
+         let angle = Math.PI * 2 / 5 * i;
+         let curX=x + Math.cos(angle) * flowerSize ;
+         let curY=y + Math.sin(angle) * flowerSize ;
+         ctx.lineTo(curX, curY);
+        
+       }
+       ctx.closePath();
+       ctx.fill();
+       
+
+        ctx.beginPath();
+        ctx.strokeStyle = color2;
+        ctx.lineWidth=3;
+        ctx.moveTo(x, y + flowerSize);
+         
+        ctx.lineTo(x, y + 200)
+        ctx.stroke();
+
+        
+        const leafColor = ctx.createLinearGradient(x -20, y + 200, x + 20 ,y+200);
+        leafColor.addColorStop(0, "lime");
+        leafColor.addColorStop(1, "green");
+
+        ctx.fillStyle = leafColor;
+        ctx.beginPath();
+       
+        let leafX = x - 10;
+        let leafY = y + 200;
+        let leafAngle = Math.PI / 4;
+         
+        ctx.ellipse(leafX, leafY, 10, 20, leafAngle, 0, 2 * Math.PI);
+        ctx.fill();
+
+        leafX= x + 10;
+         leafAngle = -Math.PI / 4;
+         ctx.beginPath();
+        ctx.ellipse(leafX, leafY, 10, 20, leafAngle, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+
+
+    function drawFlowers(){
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+   
+        for(const flower of flowerData){
+              setTimeout(() => {
+                drawFlower(flower.x, flower.y,2, flower.color1,flower.color2);
+              }, flower.delay);
+          }
+          animationFrame = requestAnimationFrame(drawFlowers)
+        }
+
+
+     // kalbi buraya yapıştırdım 
+        const kalpCanvas = document.getElementById('kalpCanvas');
+        const kalpCtx = kalpCanvas.getContext('2d');
+
+        kalpCanvas.width = 100;
+        kalpCanvas.height = 100;
+
+        const centerX = kalpCanvas.width / 2;
+        const centerY = kalpCanvas.height / 2;
+
+        const scale = 3;
         let i = 0;
         const totalIterations = 2500;
 
@@ -130,24 +139,45 @@
             return 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
         }
 
-        function drawFrame() {
+        function drawKalpFrame() {
             if (i >= totalIterations) {
                 return;
             }
             const x = xt(i) * scale;
             const y = yt(i) * scale;
 
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(centerX + x, centerY - y);
-            ctx.strokeStyle = 'red';
-            ctx.stroke();
+            kalpCtx.beginPath();
+            kalpCtx.moveTo(centerX, centerY);
+            kalpCtx.lineTo(centerX + x, centerY - y);
+            kalpCtx.strokeStyle = 'red';
+            kalpCtx.stroke();
 
             i++;
-            requestAnimationFrame(drawFrame);
+            requestAnimationFrame(drawKalpFrame);
         }
 
-        drawFrame();
+         drawKalpFrame();
+         drawFlowers();
+
+
+
+     window.addEventListener('resize', ()=>{
+       canvas.width = window.innerWidth;
+       canvas.height = window.innerHeight;
+
+       flowerData[0].x=canvas.width / 2 - 200;
+       flowerData[0].y=canvas.height / 2;
+
+       flowerData[1].x=canvas.width / 2;
+       flowerData[1].y=canvas.height / 2;
+       
+       flowerData[2].x=canvas.width / 2 + 200;
+       flowerData[2].y=canvas.height / 2;
+
+       cancelAnimationFrame(animationFrame)
+       drawFlowers()
+     })
+
     </script>
 </body>
 </html>
